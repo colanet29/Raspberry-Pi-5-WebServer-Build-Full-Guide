@@ -1,0 +1,100 @@
+# We create bash script to automation the backup process.
+# Create the local WordPress directory.
+# Assume you have local machine (Wordpress server) and remote backup machine, 
+# both can use two raspberry pi.
+
+mkdir wp-backups && cd wp-backups
+
+# Create bash file
+nano /home/user/Wordpress-backups/backup_script.sh
+
+# paste below scripts
+
+# ========================================================== #
+
+#!/bin/bash
+
+# Define variables
+BACKUP_DIR="/home/user/wp-backups/"        # local machine 
+CONTAINER_NAME="wordpress-wordpress1-1"
+DB_CONTAINER_NAME="wordpress-db1-1"
+DB_NAME="exampledb001"
+DB_USER="exampleuser001"
+DB_PASS="examplepass001"
+DATE=$(date +%F)
+LOG_FILE="$BACKUP_DIR/backup_log_$DATE.log"
+REMOTE_USER="your_user"                    # remote backup machine
+REMOTE_HOST="your_user.local"              # remote backup machine
+REMOTE_DIR="/home/user/remote-wp-backups"  # remote backup machine
+
+# Create backup directory if it doesn't exist
+mkdir -p "$BACKUP_DIR/$DATE"
+sudo chown -R "$USER:$USER" "$BACKUP_DIR/$DATE"
+
+# Function to log messages
+log_message() {
+    echo "$(date +'%Y-%m-%d %H:%M:%S') - $1" | tee -a "$LOG_FILE"
+}
+
+# Backup WordPress files
+log_message "Starting WordPress files backup..."
+if docker cp "$CONTAINER_NAME:/var/www/html" "$BACKUP_DIR/$DATE/www"; then
+    log_message "WordPress files backup completed successfully."
+else
+    log_message "Error during WordPress files backup."
+    exit 1
+fi
+
+# Backup the database
+log_message "Starting database backup..."
+if docker exec "$DB_CONTAINER_NAME" mariadb-dump -u "$DB_USER" -p"$DB_PASS" "$DB_NAME" > "$BACKUP_DIR/$DATE/db_backup.sql" 2>> "$LOG_FILE"; then
+    log_message "Database backup completed successfully."
+    log_message "Compressing database backup..."
+    if zip -j "$BACKUP_DIR/$DATE/db_backup.sql.zip" "$BACKUP_DIR/$DATE/db_backup.sql"; then
+        log_message "Database backup compressed successfully."
+        rm "$BACKUP_DIR/$DATE/db_backup.sql"  # Remove the uncompressed .sql file
+    else
+        log_message "Error compressing database backup."
+        exit 1
+    fi
+else
+    log_message "Error during database backup."
+    docker logs "$DB_CONTAINER_NAME" | tee -a "$LOG_FILE"
+    exit 1
+fi
+
+# Optional: Remove backups older than 7 days
+log_message "Removing backups older than 7 days..."
+if find "$BACKUP_DIR" -mindepth 1 -maxdepth 1 -type d -mtime +7 -exec rm -rf {} +; then
+    log_message "Old backups removed successfully."
+else
+    log_message "Error removing old backups."
+    exit 1
+fi
+
+# Transfer backups to remote server
+log_message "Transferring backups to remote se rver..."
+if rsync -avz --delete "$BACKUP_DIR/$DATE" "$REMOTE_USER@$REMOTE_HOST:$REMOTE_DIR"; then
+    log_message "Backups transferred to remote server successfully."
+else
+    log_message "Error transferring backups to remote server."
+    exit 1
+fi
+
+
+# save and quit
+# ========================================================== #
+
+# make the backup_script.sh into executable file
+chmod +x /home/user/wp-backups/backup_script.sh
+
+# use crontab to set the automation to run the backup_script.sh 
+crontab -e
+
+# adjust the below number for the time to start to run script
+45 21 * * * /home/user/wp-backups/backup_script.sh >> /home/user/wp-backups/backup_log_$(date +\%F).log 2>&1
+
+
+
+
+
