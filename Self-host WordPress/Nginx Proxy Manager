@@ -1,3 +1,4 @@
+# Install NPM for Reverse Proxy to self host your WordPress blog site.
 # Log into Portainer > Stack > add Stack > Web Editor > paste below 
 # installation script > deploy!
 
