@@ -1,0 +1,40 @@
+# Portainer > Stack > add Stack > Web Editor > paste below 
+# installation script > deploy!
+
+# You can add more WordPress site here in the future.
+
+============================================================
+
+services:
+  wordpress1:
+    image: arm64v8/wordpress
+    restart: always
+    ports:
+      - 8080:80  # Change this port if 8080 (external port) is in use
+
+# please change below credentials
+
+    environment:
+      WORDPRESS_DB_HOST: db1
+      WORDPRESS_DB_USER: exampleuser001
+      WORDPRESS_DB_PASSWORD: examplepass001
+      WORDPRESS_DB_NAME: exampledb001
+    volumes:
+      - wordpress1:/var/www/html
+
+  db1:
+    image: arm64v8/mariadb:latest
+    restart: always
+    environment:
+      MYSQL_DATABASE: exampledb001
+      MYSQL_USER: exampleuser001
+      MYSQL_PASSWORD: examplepass001
+      MYSQL_RANDOM_ROOT_PASSWORD: '1'
+    volumes:
+      - db1:/var/lib/mysql
+
+
+volumes:
+  wordpress1:
+  db1:
+
