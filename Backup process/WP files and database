@@ -16,8 +16,8 @@ nano /home/user/Wordpress-backups/backup_script.sh
 
 # Define variables
 BACKUP_DIR="/home/user/wp-backups/"        # local machine 
-CONTAINER_NAME="wordpress-wordpress1-1"
-DB_CONTAINER_NAME="wordpress-db1-1"
+CONTAINER_NAME="wordpress-wordpress1-1"    # wordpress files
+DB_CONTAINER_NAME="wordpress-db1-1"        # wordpress database
 DB_NAME="exampledb001"
 DB_USER="exampleuser001"
 DB_PASS="examplepass001"
