@@ -1,4 +1,4 @@
-# RaspberryPi 5 Web Server Build FullGuide
+# Raspberry Pi 5 Web Server Build Full Guide
 
 ## Introduction of project
 
