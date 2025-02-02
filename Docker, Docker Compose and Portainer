@@ -1,0 +1,21 @@
+# installation build scripts (Docker and Docker-Compose on ubuntu)
+
+sudo apt-get update && sudo apt-get upgrade -y
+curl -fsSL https://get.docker.com -o get-docker.sh && sh get-docker.sh
+
+sudo usermod -aG docker mev
+newgrp docker
+
+# check docker version
+
+docker --version
+docker run hello-world
+
+# install and setup docker compose
+sudo apt-get install python3-pip -y
+sudo apt-get update && sudo apt-get upgrade -y
+sudo apt-get install docker-compose -y
+docker-compose --version
+
+sudo systemctl enable docker
+sudo systemctl status docker
