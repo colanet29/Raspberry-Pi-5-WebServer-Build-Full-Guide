@@ -1,1 +1,23 @@
+# Log into Portainer > Stack > add Stack > Web Editor > paste below 
+# installation script > deploy!
+
+version: '3'
+services:
+  app:
+    image: 'jc21/nginx-proxy-manager:latest'
+    restart: always
+    ports:
+      - '80:80'
+      - '81:81'
+      - '443:443'
+    volumes:
+      - ./data:/data
+      - ./letsencrypt:/etc/letsencrypt
+    networks:
+      - npm-network
+
+networks:
+  npm-network:
+    driver: bridge
+
 
