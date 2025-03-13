@@ -37,7 +37,7 @@ Deploy WordPress in Portainer with scripts
 
 Create your website domain or sub domain from any hosting company. And setup your Internet IP in your client platform on your hosting company. Set your domain point to your Internet IP
 
-### Step 5
+### Step 5 - for Nginx Proxy Manager 
 
 Log into your home router, and enable the port 80 and port 443
 
